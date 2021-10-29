@@ -1,9 +1,12 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import axios from "axios";
+import { ContextUser } from "../context/Context";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const { dispatch, access_token } = useContext(ContextUser);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -13,9 +16,20 @@ const Login = () => {
         "http://localhost:4000/auth/login",
         body
       );
+      if (response.data.access_token) {
+        dispatch({
+          type: "LOGIN_SUCCESS",
+          payload: response.data.access_token,
+        });
+      }
     } catch (error) {
       console.log(error);
     }
+  };
+
+  const logout = () => {
+    localStorage.removeItem("access_token");
+    dispatch({ type: "LOGOUT" });
   };
 
   return (
@@ -40,6 +54,7 @@ const Login = () => {
         />
       </div>
       <input type="submit" value="Login" />
+      <input type="button" onClick={logout} value="Logout" />
     </form>
   );
 };
